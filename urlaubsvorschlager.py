@@ -9,10 +9,10 @@ FILE_NAME = "./gowalla/loc-gowalla_totalCheckins.txt/data"
 PRINT_STEP = 10000
 
 def parse_file(file_name):
-	if not pathlib.Path(FILE_NAME+".pickle").is_file():
+	if not pathlib.Path(file_name+".pickle").is_file():
 		print("Creating training data from scratch.")
 		user_to_checkin = {}
-		with open(FILE_NAME) as csvfile:
+		with open(file_name) as csvfile:
 			checkins = csv.reader(csvfile, delimiter="\t")
 			index = 0
 			for row in checkins:
@@ -30,7 +30,7 @@ def parse_file(file_name):
 		print("Finished building dictionary.")
 	else: 
 		print("Reading pickled data.")
-		with open(FILE_NAME+".pickle", "rb") as f_pickle:
+		with open(file_name+".pickle", "rb") as f_pickle:
 			user_to_checkin = pickle.load(f_pickle)
 	return user_to_checkin
 	
