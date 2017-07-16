@@ -17,3 +17,7 @@ Fall 1: Nutzer A hat 10 besuchte Orte, Nutzer B 100. Wir nehmen für jeden der 1
 
 Fall 2: Nutzer A hat 100 besuchte Orte, Nutzer B 10. Wir nehmen noch immer für jeden von As Orten denjenigen von B, der am ähnlichsten ist. Orte von B können dabei "recycelt" werden: Z.B. Nutzer A war in Paris im Louvre und auch am Eiffelturm. Nutzer B checkt im Allgemeinen weniger oft ein als Nutzer A, er hat nur am Eiffelturm eingecheckt. 
 Nun teilen wir dem Checkin "Louvre" von Nutzer A "Eiffelturm" von Nutzer B zu, da dies der ähnlichste Checkin ist. Dem Checkin "Eiffelturm" von Nutzer A teilen wir ebenfalls "Eiffelturm" von Nutzer B zu, da er am ähnlichsten ist. "Eiffelturm" von Nutzer B wurde also mehrfach verwendet. 
+
+# Datenset
+
+Die Daten von <https://snap.stanford.edu/data/loc-gowalla.html> runterladen, entpacken und den Ordner ins Hauptverzeichnis von urlaubsvorschlager stecken. 
