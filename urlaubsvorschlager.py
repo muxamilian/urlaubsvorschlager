@@ -3,7 +3,6 @@
 import csv
 import pathlib
 import numpy as np
-
 import scipy
 import scipy.spatial
 
@@ -24,7 +23,8 @@ def parse_file(file_name):
 				user_id = int(row[0])
 				lat_lng = np.array([float(row[2]), float(row[3])])
 				month = time.strptime(row[1], "%Y-%m-%dT%H:%M:%SZ").tm_mon
-				# location_id = row[4] # We don't need this currently
+				## We don't need this currently
+				# location_id = row[4]
 				if not user_id in user_to_checkin:
 					user_to_checkin[user_id] = ([lat_lng], [month])
 				else:
@@ -90,7 +90,7 @@ def calculate_similarity_between_two_users(user_id, other_user_id, user_to_check
 def calculate_medoid_of_user(user_id, user_to_checkin):
 	checkin_array = np.array(user_to_checkin[user_id])
 	distance_matrix = scipy.spatial.distance.pdist(checkin_array)
-	# Whether you use axis 0 or 1 doesn't matter as the matrix is quadratic
+	## Whether you use axis 0 or 1 doesn't matter as the matrix is quadratic
 	medoid_index = np.argmin(np.sum(distance_matrix, axis=0))
 	return checkin_array[medoid_index]
 
