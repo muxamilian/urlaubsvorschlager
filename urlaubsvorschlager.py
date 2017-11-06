@@ -63,6 +63,10 @@ def parse_file_raw(file_name):
 			if index % PRINT_STEP_PARSE == 0:
 				print("Parsed", index, "lines.")
 			# print("Finished building dictionary.")
+
+	for value_tuple in user_to_checkin.values():
+		value_tuple = (np.array(value_tuple[0], dtype=np.float32), np.array(value_tuple[1], dtype=np.uint8))
+
 	print("Calculating users' medoids.")
 
 	for user_id in user_to_checkin:
@@ -94,10 +98,14 @@ def calculate_similarity_to_each_user_raw(user_id, user_to_checkin, user_to_medo
 			last_debug_timer = new_debug_timer
 		similarities.append(calculate_similarity_between_two_users(user_id, other_user_id, user_to_checkin, user_to_medoid))
 
+	similarities = np.array(similarities, dtype=np.float32)
 	print("Calculated similarities.")
 	sorted_indices = similarities.argsort()
 	print("Sorted similarities.")
 
+	all_user_ids = np.array(all_user_ids)
+	# FIXME: Why's there this pattern in the data?
+	print("type(sorted_indices)", type(sorted_indices), "sorted_indices", sorted_indices)
 	all_user_ids, similarities = all_user_ids[sorted_indices], similarities[sorted_indices]
 	return all_user_ids[sorted_indices], similarities[sorted_indices]
 
@@ -115,28 +123,27 @@ def calculate_similarity_between_two_users(user_id, other_user_id, user_to_check
 	other_user_medoid = np.array(user_to_medoid[other_user_id])
 
 	user_checkins_lat_lngs = np.array(user_checkins[0])
-	print("user_checkins_lat_lngs.shape", user_checkins_lat_lngs.shape)
+	# print("user_checkins_lat_lngs.shape", user_checkins_lat_lngs.shape)
 	other_user_checkins_lat_lngs = np.array(other_user_checkins[0])
-	print("other_user_checkins_lat_lngs.shape", other_user_checkins_lat_lngs.shape)
+	# print("other_user_checkins_lat_lngs.shape", other_user_checkins_lat_lngs.shape)
 
 	# FIXME: I guess you can leave out all the sqrts
 	differences_places = np.sqrt(np.sum((np.expand_dims(user_checkins_lat_lngs, axis=1) - np.expand_dims(other_user_checkins_lat_lngs, axis=0))**2, axis=2))
-	print("differences_places.shape", differences_places.shape)
+	# print("differences_places.shape", differences_places.shape)
 
-	print("user_checkins_lat_lngs.shape", user_checkins_lat_lngs.shape)
+	# print("user_checkins_lat_lngs.shape", user_checkins_lat_lngs.shape)
 	differences_homes_user = np.sqrt(np.sum((user_checkins_lat_lngs - user_medoid)**2, axis=1))
-	print("differences_homes_user.shape", differences_homes_user.shape)
-	print("other_user_checkins_lat_lngs.shape", other_user_checkins_lat_lngs.shape)
+	# print("differences_homes_user.shape", differences_homes_user.shape)
+	# print("other_user_checkins_lat_lngs.shape", other_user_checkins_lat_lngs.shape)
 	differences_homes_other_user = np.sqrt(np.sum((other_user_checkins_lat_lngs - other_user_medoid)**2, axis=1))
-	print("differences_homes_other_user.shape", differences_homes_other_user.shape)
+	# print("differences_homes_other_user.shape", differences_homes_other_user.shape)
 	differences_homes = np.multiply(np.expand_dims(differences_homes_user, axis=1), np.expand_dims(differences_homes_other_user, axis=0))
-	print("differences_homes.shape", differences_homes.shape)
+	# print("differences_homes.shape", differences_homes.shape)
 
 	assert(differences_places.shape == differences_homes.shape)
 	differences = np.divide(differences_places, differences_homes)
-	print("differences.shape", differences.shape)
-	minimum_difference_for_each_location_of_the_user = differences.min(axis=0)
-	# FIXME: Dimensionen sind irgendwie vertauscht...
+	# print("differences.shape", differences.shape)
+	minimum_difference_for_each_location_of_the_user = differences.min(axis=1)
 	if minimum_difference_for_each_location_of_the_user.shape[0] != user_checkins_lat_lngs.shape[0]:
 		print(minimum_difference_for_each_location_of_the_user.shape, user_checkins_lat_lngs.shape)
 	assert(minimum_difference_for_each_location_of_the_user.shape[0] == user_checkins_lat_lngs.shape[0])
@@ -145,7 +152,7 @@ def calculate_similarity_between_two_users(user_id, other_user_id, user_to_check
 	return total_difference
 
 def calculate_medoid_of_user(user_id, user_to_checkin):
-	checkin_array = np.array(user_to_checkin[user_id][0])
+	checkin_array = user_to_checkin[user_id][0]
 	distance_matrix = scipy.spatial.distance.pdist(checkin_array)
 	## Whether you use axis 0 or 1 doesn't matter as the matrix is quadratic
 	medoid_index = np.argmin(np.sum(distance_matrix, axis=0))
@@ -156,3 +163,5 @@ print("Read", len(user_to_checkin.keys()), "users.")
 print("Calculating Urlaubsvorschlag for user", user_id)
 users_sorted_by_similarity, sorted_similarities = calculate_similarity_to_each_user(user_id, user_to_checkin, user_to_medoid)
 best_other_users = users_sorted_by_similarity[:USERS_TO_USE_FOR_SUGGESTIONS]
+
+# Overall TODO: Convert lat lngs to numpy arrays of float32. Run the whole shit finally...
